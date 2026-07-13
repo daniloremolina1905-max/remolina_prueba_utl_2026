@@ -1,5 +1,5 @@
 """
-Reto 5.1 — Heatmap de participación por candidato y municipio.
+Reto 5.1 - Heatmap de participación por candidato y municipio.
 
 Genera viz/heatmap_municipios.png:
     filas    = top 8 candidatos de Cámara (por votos totales en los 4 municipios)
@@ -115,7 +115,7 @@ def main() -> None:
             color = "white" if valor > matriz.max() * 0.6 else "black"
             ax.text(j, i, f"{valor:.1f}%", ha="center", va="center", color=color, fontsize=9)
 
-    ax.set_title(f"Top {TOP_N} candidatos Cámara — % de votos válidos por municipio\nBoyacá 2026", fontsize=11)
+    ax.set_title(f"Top {TOP_N} candidatos Cámara - % de votos válidos por municipio\nBoyacá 2026", fontsize=11)
     fig.colorbar(im, ax=ax, label="% del total de Cámara en el municipio")
     fig.tight_layout()
 

@@ -1,5 +1,5 @@
 -- Schema BD Electoral Boyacá 2026
--- UTL Senado de la República · Prueba Técnica Analista de Datos
+-- UTL Senado de la República - Prueba Técnica Analista de Datos
 --
 -- Nota: la API expone resultados hasta nivel PUESTO; las mesas se generan por
 -- reparto determinístico en el ETL (detalle en README, sección "API").

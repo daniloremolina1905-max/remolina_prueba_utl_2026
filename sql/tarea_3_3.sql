@@ -1,4 +1,4 @@
--- Tarea 3.3 — Atribución determinística, Top 5 candidatos por atribución SE consolidada
+-- Tarea 3.3 - Atribución determinística, Top 5 candidatos por atribución SE consolidada
 -- A_ij = (votos_cand_i / votos_partido_j_CA) * votos_SE_partido_homologado_j
 -- Homologación fijada por el enunciado: 5->57, 87->92. Resto: codpar_SE = codpar_CA
 -- (ver README, "Hallazgos principales").

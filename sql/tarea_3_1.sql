@@ -1,4 +1,4 @@
--- Tarea 3.1 — Arrastre Alianza Verde CA -> SE, por puesto y municipio
+-- Tarea 3.1 - Arrastre Alianza Verde CA -> SE, por puesto y municipio
 -- ratio_arrastre = votos_SE_Verde / votos_CA_Verde
 -- Homologación: codpar_CA=5 -> codpar_SE=57
 

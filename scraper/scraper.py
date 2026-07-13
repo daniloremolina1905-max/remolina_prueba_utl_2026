@@ -1,5 +1,5 @@
 """
-Scraper de resultados electorales — Congreso 2026, 4 municipios de Boyacá.
+Scraper de resultados electorales del Congreso 2026, 4 municipios de Boyacá.
 
 Fuente: API REST de la Registraduría Nacional
         https://resultadospreccongreso2026.registraduria.gov.co
@@ -88,7 +88,7 @@ def fetch_json(url: str, session: requests.Session, max_retries: int = 4, timeou
                 return data, "api_live"
             if resp.status_code in (429, 500, 502, 503, 504):
                 log.warning(
-                    "HTTP %s en intento %d/%d para %s — reintentando en %.1fs",
+                    "HTTP %s en intento %d/%d para %s, reintentando en %.1fs",
                     resp.status_code, attempt, max_retries, url, backoff,
                 )
             else:
@@ -215,7 +215,7 @@ def procesar_municipio_eleccion(
         data, fuente = fetch_json(url, session, max_retries=max_retries)
         time.sleep(delay)
         if data is None:
-            log.error("Sin datos para puesto %s (%s) — se omite", puesto_amb["n"], eleccion)
+            log.error("Sin datos para puesto %s (%s), se omite", puesto_amb["n"], eleccion)
             continue
         fuentes_usadas.add(fuente)
 
@@ -284,7 +284,7 @@ def preflight(nomenclator: dict, municipios: list[str]) -> None:
         try:
             muni = resolver_municipio(nomenclator, nombre)
         except ValueError as exc:
-            print(f"  {nombre}: ERROR — {exc}")
+            print(f"  {nombre}: ERROR - {exc}")
             continue
         puestos = puestos_de_municipio(nomenclator, muni)
         mesas = sum(p.get("m", 0) or 0 for p in puestos)

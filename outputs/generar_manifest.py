@@ -1,5 +1,5 @@
 """
-Genera outputs/evaluation_manifest.json — valida automáticamente:
+Genera outputs/evaluation_manifest.json. Valida automáticamente:
   - Reto 1/2: que la BD tenga filas de los 4 municipios ("4/4 municipios")
   - Reto 3: que las 3 queries de sql/ corran sin error ("SQL OK")
   - Reto 5: valores impresos por viz/scatter.py (r, pendiente, n_mesas)
@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ============================================================================
-# META — EDITAR ANTES DE ENTREGAR
+# META - EDITAR ANTES DE ENTREGAR
 # ============================================================================
 META = {
     "nombre": "DANILO JOSE REMOLINA ANGEL",

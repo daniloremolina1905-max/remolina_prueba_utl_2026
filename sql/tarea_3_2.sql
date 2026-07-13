@@ -1,4 +1,4 @@
--- Tarea 3.2 — Dominancia extrema
+-- Tarea 3.2 - Dominancia extrema
 -- Mesas donde un candidato concentra >60% de los votos de su partido.
 -- Excluye "Voto Solo Por Lista". Umbral total_partido_mesa >= 5 para
 -- descartar muestras minúsculas sin señal real.

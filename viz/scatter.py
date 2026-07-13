@@ -1,5 +1,5 @@
 """
-Reto 5.2 — Scatter Cámara vs. Senado por mesa.
+Reto 5.2 - Scatter Cámara vs. Senado por mesa.
 
 Genera viz/scatter_ca_se.png:
     cada punto = una mesa (votos válidos totales de Cámara vs. de Senado)

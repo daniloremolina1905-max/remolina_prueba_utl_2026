@@ -1,5 +1,5 @@
 """
-ETL — carga normalizada de resultados electorales en puestos_2026.db.
+ETL, carga normalizada de resultados electorales en puestos_2026.db.
 
 Funciones de inserción idempotente (INSERT OR IGNORE + UNIQUE) reutilizadas
 por scraper/scraper.py. Ejecutado directo, solo inicializa el schema.
