@@ -28,6 +28,17 @@ pip install -r requirements.txt
 Dependencias: `requests` (scraper), `matplotlib` + `scipy` + `numpy` (viz).
 El dashboard no requiere instalar nada — es un único HTML autocontenido.
 
+### Nota sobre `db/puestos_2026.db`
+
+El archivo pesa ~88 MB (1.24M filas de votos, 4 índices) — supera los 50 MB,
+así que está en `.gitignore` y **no viaja en el repositorio de git**. Dos
+formas de obtenerlo:
+
+1. **Regenerarlo (recomendado, ~2-3 min):** `python scraper/scraper.py` —
+   determinístico, reproduce exactamente los mismos datos.
+2. **Descargarlo del Release de GitHub:** `<PENDIENTE: subir como Release
+   asset y pegar aquí el link, ver instrucciones de entrega del enunciado>`.
+
 ## Pipeline de ejecución
 
 Reproducible en menos de 10 minutos (73 puestos × 2 elecciones ≈ 150
