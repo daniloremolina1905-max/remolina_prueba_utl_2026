@@ -1,0 +1,27 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Caché interno del scraper (se regenera solo, ver README "API" > fallback)
+.scraper_cache/
+
+# Base de datos: se regenera con `python scraper/scraper.py` en ~2-3 min.
+# Si supera 50 MB se sube como Release asset en GitHub (ver README).
+db/puestos_2026.db
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Configuración local de Claude Code (no forma parte de la entrega)
+.claude/

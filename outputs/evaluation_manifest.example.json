@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "nombre": "REMOLINA APELLIDO NOMBRE",
+    "email": "correo@ejemplo.com",
+    "repo_url": "https://github.com/TU_USUARIO/remolina_prueba_utl_2026"
+  },
+  "generado_en": "2026-07-13T16:34:41.644885+00:00",
+  "reto1_2_extraccion_y_bd": {
+    "status": "4/4 municipios",
+    "municipios_esperados": 4,
+    "municipios_encontrados": 4,
+    "detalle_por_municipio": {
+      "TUNJA": {
+        "puestos": 26,
+        "mesas": 424,
+        "filas_votos": 477848
+      },
+      "PAIPA": {
+        "puestos": 7,
+        "mesas": 95,
+        "filas_votos": 107065
+      },
+      "SOGAMOSO": {
+        "puestos": 18,
+        "mesas": 301,
+        "filas_votos": 339227
+      },
+      "DUITAMA": {
+        "puestos": 22,
+        "mesas": 287,
+        "filas_votos": 323449
+      }
+    },
+    "conteo_tablas": {
+      "municipios": 4,
+      "partidos": 23,
+      "puestos": 73,
+      "mesas": 1107,
+      "candidatos": 1127,
+      "votos": 1247589,
+      "carga_log": 12
+    },
+    "partido_lider_se_por_municipio": {
+      "TUNJA": "PACTO HISTÓRICO SENADO",
+      "PAIPA": "ALIANZA POR COLOMBIA",
+      "SOGAMOSO": "PACTO HISTÓRICO SENADO",
+      "DUITAMA": "PACTO HISTÓRICO SENADO"
+    }
+  },
+  "reto3_sql": {
+    "tarea_3_1": {
+      "status": "SQL OK",
+      "filas_resultado": 73,
+      "muestra": [
+        {
+          "municipio": "DUITAMA",
+          "puesto": "ANTIGUO TERMINAL DE TRANSPORTE",
+          "codigo_puesto": "0700079010002",
+          "votos_ca_verde": 439,
+          "votos_se_verde": 539,
+          "ratio_arrastre": 1.2278
+        },
+        {
+          "municipio": "DUITAMA",
+          "puesto": "AVENDAÑOS",
+          "codigo_puesto": "0700079990050",
+          "votos_ca_verde": 15,
+          "votos_se_verde": 19,
+          "ratio_arrastre": 1.2667
+        },
+        {
+          "municipio": "DUITAMA",
+          "puesto": "CARCEL",
+          "codigo_puesto": "0700079980001",
+          "votos_ca_verde": 6,
+          "votos_se_verde": 2,
+          "ratio_arrastre": 0.3333
+        },
+        {
+          "municipio": "DUITAMA",
+          "puesto": "COL GUILLERMO LEON VALENCIA",
+          "codigo_puesto": "0700079020002",
+          "votos_ca_verde": 838,
+          "votos_se_verde": 1200,
+          "ratio_arrastre": 1.432
+        },
+        {
+          "municipio": "DUITAMA",
+          "puesto": "COL JESUS EUCARISTIA",
+          "codigo_puesto": "0700079010004",
+          "votos_ca_verde": 243,
+          "votos_se_verde": 364,
+          "ratio_arrastre": 1.4979
+        }
+      ]
+    },
+    "tarea_3_2": {
+      "status": "SQL OK",
+      "filas_resultado": 1355,
+      "muestra": [
+        {
+          "municipio": "PAIPA",
+          "puesto": "PANTANO DE VARGAS",
+          "mesa": 3,
+          "eleccion": "SE",
+          "partido": "AHORA COLOMBIA",
+          "candidato": "Gloria Elsy Diaz Martinez",
+          "votos_candidato": 23,
+          "total_partido_mesa": 23,
+          "pct_del_partido": 1.0
+        },
+        {
+          "municipio": "SOGAMOSO",
+          "puesto": "IEPAGS SEDE ROSARIO",
+          "mesa": 23,
+          "eleccion": "SE",
+          "partido": "MOVIMIENTO SALVACIÓN NACIONAL",
+          "candidato": "Juan Camilo Ostos Romero",
+          "votos_candidato": 21,
+          "total_partido_mesa": 21,
+          "pct_del_partido": 1.0
+        },
+        {
+          "municipio": "SOGAMOSO",
+          "puesto": "IE LIBERTADOR",
+          "mesa": 20,
+          "eleccion": "SE",
+          "partido": "MOVIMIENTO SALVACIÓN NACIONAL",
+          "candidato": "Juan Camilo Ostos Romero",
+          "votos_candidato": 15,
+          "total_partido_mesa": 15,
+          "pct_del_partido": 1.0
+        },
+        {
+          "municipio": "PAIPA",
+          "puesto": "I.E.EL ROSARIO SEDE CAMPESTRE",
+          "mesa": 7,
+          "eleccion": "SE",
+          "partido": "PARTIDO DE LA UNIÓN POR LA GENTE - PARTIDO DE LA U",
+          "candidato": "John Moises Besaile Fayad",
+          "votos_candidato": 8,
+          "total_partido_mesa": 8,
+          "pct_del_partido": 1.0
+        },
+        {
+          "municipio": "TUNJA",
+          "puesto": "COL DE BOYACA SD JOSE IGNACIO DE MARQUEZ",
+          "mesa": 12,
+          "eleccion": "SE",
+          "partido": "COALICIÓN FUERZA CIUDADANA",
+          "candidato": "Cruz Felipe Morantes Rincon",
+          "votos_candidato": 8,
+          "total_partido_mesa": 8,
+          "pct_del_partido": 1.0
+        }
+      ]
+    },
+    "tarea_3_3": {
+      "status": "SQL OK",
+      "filas_resultado": 5,
+      "muestra": [
+        {
+          "candidato": "Yamit Noe Hurtado Neira",
+          "partido_ca": "PARTIDO ALIANZA VERDE",
+          "votos_cand": 11206,
+          "total_ca_partido": 37600,
+          "codpar_se_usado": 57,
+          "total_se_partido": 37023,
+          "atribucion_se": 11034.04
+        },
+        {
+          "candidato": "Jaime Raul Salamanca Torres",
+          "partido_ca": "PARTIDO ALIANZA VERDE",
+          "votos_cand": 9406,
+          "total_ca_partido": 37600,
+          "codpar_se_usado": 57,
+          "total_se_partido": 37023,
+          "atribucion_se": 9261.66
+        },
+        {
+          "candidato": "Ramiro Barragan Adame",
+          "partido_ca": "PARTIDO ALIANZA VERDE",
+          "votos_cand": 8936,
+          "total_ca_partido": 37600,
+          "codpar_se_usado": 57,
+          "total_se_partido": 37023,
+          "atribucion_se": 8798.87
+        },
+        {
+          "candidato": "Hector David Chaparro Chaparro",
+          "partido_ca": "PARTIDO LIBERAL COLOMBIANO",
+          "votos_cand": 13861,
+          "total_ca_partido": 24885,
+          "codpar_se_usado": 2,
+          "total_se_partido": 15075,
+          "atribucion_se": 8396.81
+        },
+        {
+          "candidato": "Eduar Alexis Triana Rincon",
+          "partido_ca": "PARTIDO CENTRO DEMOCRÁTICO",
+          "votos_cand": 4440,
+          "total_ca_partido": 20494,
+          "codpar_se_usado": 10,
+          "total_se_partido": 30771,
+          "atribucion_se": 6666.5
+        }
+      ]
+    }
+  },
+  "reto5_viz": {
+    "scatter": {
+      "r": 0.689,
+      "pendiente": 0.494,
+      "n_mesas": 1107
+    },
+    "heatmap_png_kb": 115.1,
+    "scatter_png_kb": 163.9
+  },
+  "bonus_detectados": [
+    "1.2 preflight (+3)",
+    "2.1 indices_justificados (+2)",
+    "3.3 explicacion_top_ca_vs_atribucion_se (+2)",
+    "4 dark_mode (+3)",
+    "4 export_csv (+2)",
+    "libre municipios_adicionales (+3)"
+  ]
+}

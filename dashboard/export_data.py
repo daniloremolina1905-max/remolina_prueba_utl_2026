@@ -1,0 +1,166 @@
+"""
+Genera dashboard/data.json a partir de db/puestos_2026.db y además incrusta
+ese mismo JSON dentro de dashboard/index.html (entre los marcadores
+DATA_START / DATA_END), para que el dashboard funcione abriendo el archivo
+directamente en el navegador sin servidor (fetch() de un archivo local vía
+file:// falla por CORS en Chrome, por eso los datos van embebidos inline).
+
+Uso:
+    python dashboard/export_data.py
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path(__file__).resolve().parent.parent / "db" / "puestos_2026.db"
+DATA_JSON_PATH = Path(__file__).resolve().parent / "data.json"
+INDEX_HTML_PATH = Path(__file__).resolve().parent / "index.html"
+
+MARK_START = "/*__DATA_START__*/"
+MARK_END = "/*__DATA_END__*/"
+
+# Homologación Verde CA->SE exigida por el enunciado (Reto 3.1 / Reto 4)
+CODPAR_VERDE_CA = 5
+CODPAR_VERDE_SE = 57
+
+
+def connect() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def build_municipios(conn: sqlite3.Connection) -> list[str]:
+    return [r["nombre"] for r in conn.execute("SELECT nombre FROM municipios ORDER BY nombre")]
+
+
+def build_comparativo(conn: sqlite3.Connection) -> list[dict]:
+    """Votos CA totales (válidos, sin voto-solo-lista) por municipio."""
+    rows = conn.execute(
+        """
+        SELECT mu.nombre AS municipio, SUM(v.votos) AS votos_ca
+        FROM votos v
+        JOIN mesas me ON me.id = v.mesa_id
+        JOIN puestos pu ON pu.id = me.puesto_id
+        JOIN municipios mu ON mu.id = pu.municipio_id
+        JOIN candidatos c ON c.id = v.candidato_id
+        WHERE v.eleccion = 'CA' AND c.nombre != 'Voto Solo Por Lista'
+        GROUP BY mu.id
+        ORDER BY mu.nombre
+        """
+    ).fetchall()
+    return [{"municipio": r["municipio"], "votos_ca": r["votos_ca"]} for r in rows]
+
+
+def build_por_municipio(conn: sqlite3.Connection) -> dict:
+    """Por municipio: top 10 candidatos CA + partido líder SE."""
+    out = {}
+    municipios = build_municipios(conn)
+    for muni in municipios:
+        top_candidatos = conn.execute(
+            """
+            SELECT c.nombre AS candidato, pa.nombre AS partido, pa.color AS color, SUM(v.votos) AS votos
+            FROM votos v
+            JOIN mesas me ON me.id = v.mesa_id
+            JOIN puestos pu ON pu.id = me.puesto_id
+            JOIN municipios mu ON mu.id = pu.municipio_id
+            JOIN candidatos c ON c.id = v.candidato_id
+            JOIN partidos pa ON pa.codpar = v.codpar
+            WHERE v.eleccion = 'CA' AND mu.nombre = ? AND c.nombre != 'Voto Solo Por Lista'
+            GROUP BY v.candidato_id
+            ORDER BY votos DESC
+            LIMIT 10
+            """,
+            (muni,),
+        ).fetchall()
+
+        partido_lider = conn.execute(
+            """
+            SELECT pa.nombre AS partido, pa.color AS color, SUM(v.votos) AS votos
+            FROM votos v
+            JOIN mesas me ON me.id = v.mesa_id
+            JOIN puestos pu ON pu.id = me.puesto_id
+            JOIN municipios mu ON mu.id = pu.municipio_id
+            JOIN partidos pa ON pa.codpar = v.codpar
+            WHERE v.eleccion = 'SE' AND mu.nombre = ?
+            GROUP BY v.codpar
+            ORDER BY votos DESC
+            LIMIT 1
+            """,
+            (muni,),
+        ).fetchone()
+
+        out[muni] = {
+            "top_candidatos_ca": [
+                {"candidato": r["candidato"], "partido": r["partido"], "color": r["color"], "votos": r["votos"]}
+                for r in top_candidatos
+            ],
+            "partido_lider_se": (
+                {"partido": partido_lider["partido"], "color": partido_lider["color"], "votos": partido_lider["votos"]}
+                if partido_lider
+                else None
+            ),
+        }
+    return out
+
+
+def build_arrastre(conn: sqlite3.Connection) -> dict:
+    """Ratio Verde SE/CA por puesto, agrupado por municipio (reutiliza sql/tarea_3_1.sql)."""
+    sql_path = Path(__file__).resolve().parent.parent / "sql" / "tarea_3_1.sql"
+    sql_text = sql_path.read_text(encoding="utf-8")
+    rows = conn.execute(sql_text).fetchall()
+
+    out: dict[str, list[dict]] = {}
+    for r in rows:
+        out.setdefault(r["municipio"], []).append(
+            {
+                "puesto": r["puesto"],
+                "votos_ca_verde": r["votos_ca_verde"],
+                "votos_se_verde": r["votos_se_verde"],
+                "ratio_arrastre": r["ratio_arrastre"],
+            }
+        )
+    return out
+
+
+def build_data() -> dict:
+    conn = connect()
+    data = {
+        "municipios": build_municipios(conn),
+        "comparativo": build_comparativo(conn),
+        "por_municipio": build_por_municipio(conn),
+        "arrastre": build_arrastre(conn),
+    }
+    conn.close()
+    return data
+
+
+def write_data_json(data: dict) -> None:
+    DATA_JSON_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Escrito {DATA_JSON_PATH} ({DATA_JSON_PATH.stat().st_size} bytes)")
+
+
+def embed_into_html(data: dict) -> None:
+    html = INDEX_HTML_PATH.read_text(encoding="utf-8")
+    pattern = re.compile(re.escape(MARK_START) + r".*?" + re.escape(MARK_END), re.DOTALL)
+    replacement = MARK_START + " " + json.dumps(data, ensure_ascii=False) + " " + MARK_END
+    if not pattern.search(html):
+        raise RuntimeError(f"No se encontraron los marcadores {MARK_START} / {MARK_END} en index.html")
+    html_nuevo = pattern.sub(lambda _: replacement, html)
+    INDEX_HTML_PATH.write_text(html_nuevo, encoding="utf-8")
+    print(f"Datos embebidos en {INDEX_HTML_PATH}")
+
+
+def main() -> None:
+    data = build_data()
+    write_data_json(data)
+    embed_into_html(data)
+    print(f"Municipios en el dashboard: {len(data['municipios'])}/4 -> {data['municipios']}")
+
+
+if __name__ == "__main__":
+    main()

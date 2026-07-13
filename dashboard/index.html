@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Electoral Boyacá 2026 — UTL Senado</title>
+<!--
+  Gráficos renderizados con SVG nativo (sin librerías externas): el archivo
+  debe ser 100% autocontenido y funcionar sin conexión a internet al abrirse
+  directamente en el navegador (ver README, sección "API"/Dashboard).
+-->
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --text: #1c283d;
+    --text-muted: #5b6474;
+    --border: #dfe4ea;
+    --accent: #1e477d;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #12161f;
+    --panel: #1b2130;
+    --text: #eef1f6;
+    --text-muted: #a2acc0;
+    --border: #2c3446;
+    --accent: #6fa3e0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background .2s, color .2s;
+  }
+  header {
+    background: linear-gradient(135deg, #1c283d, #1e477d);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { margin: 0; font-size: 1.3rem; }
+  header p { margin: 2px 0 0; font-size: .82rem; opacity: .8; }
+  .toolbar { display: flex; gap: 10px; align-items: center; }
+  button, select {
+    font: inherit;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+  }
+  header button, header select {
+    background: rgba(255,255,255,.12);
+    border-color: rgba(255,255,255,.35);
+    color: #fff;
+  }
+  main { padding: 24px 28px 60px; max-width: 1200px; margin: 0 auto; }
+  section { margin-bottom: 36px; }
+  section h2 {
+    font-size: 1.05rem;
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+    margin-bottom: 14px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600;
+    background: var(--bg); border: 1px solid var(--border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  canvas { max-width: 100%; }
+  .grid-2 { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  @media (min-width: 900px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  footer { text-align: center; color: var(--text-muted); font-size: .78rem; padding: 20px; }
+  .muni-select { min-width: 160px; }
+
+  .chart-svg-wrap { width: 100%; overflow-x: auto; }
+  .chart-svg-wrap svg { font-family: inherit; }
+  .bar-label { fill: var(--text); font-size: 11px; }
+  .bar-value { fill: var(--text-muted); font-size: 10.5px; }
+  .axis-line { stroke: var(--border); stroke-width: 1; }
+  .ref-line { stroke: #E07B00; stroke-width: 2; stroke-dasharray: 6 4; }
+  .bar-rect { transition: opacity .15s; }
+  .bar-rect:hover { opacity: .75; }
+  .legend-row { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: .8rem; color: var(--text-muted); }
+  .legend-row .item { display: flex; align-items: center; gap: 6px; }
+  .legend-row .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Pipeline de Datos Electorales · Boyacá 2026</h1>
+    <p>Congreso de la República · Tunja · Paipa · Sogamoso · Duitama</p>
+  </div>
+  <div class="toolbar">
+    <button id="exportCsvBtn" title="Exporta la tabla de arrastre visible como CSV">⬇ Exportar CSV</button>
+    <button id="themeToggleBtn" title="Alternar modo oscuro">🌙 Modo oscuro</button>
+  </div>
+</header>
+
+<main>
+
+  <section id="comparativo">
+    <h2>Comparativo — Votos Cámara por municipio</h2>
+    <div class="panel">
+      <div id="chartComparativo" class="chart-svg-wrap"></div>
+    </div>
+  </section>
+
+  <section id="por-municipio">
+    <h2>Por municipio — Top 10 candidatos Cámara + partido líder Senado</h2>
+    <div class="panel">
+      <div class="row">
+        <label for="selMunicipioPorMuni">Municipio:</label>
+        <select id="selMunicipioPorMuni" class="muni-select"></select>
+        <span id="badgePartidoLiderSE" class="badge"></span>
+      </div>
+      <div id="chartPorMunicipio" class="chart-svg-wrap"></div>
+    </div>
+  </section>
+
+  <section id="arrastre">
+    <h2>Arrastre Alianza Verde — Ratio Senado / Cámara por puesto</h2>
+    <div class="panel">
+      <div class="row">
+        <label for="selMunicipioArrastre">Municipio:</label>
+        <select id="selMunicipioArrastre" class="muni-select"></select>
+        <span class="badge">Línea de referencia = 1.0 (mismo arrastre)</span>
+      </div>
+      <div id="chartArrastre" class="chart-svg-wrap"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>UTL — Senado de la República · Prueba Técnica Analista de Datos · Boyacá 2026</footer>
+
+<script>
+const DASHBOARD_DATA = /*__DATA_START__*/ {"municipios": ["DUITAMA", "PAIPA", "SOGAMOSO", "TUNJA"], "comparativo": [{"municipio": "DUITAMA", "votos_ca": 26183}, {"municipio": "PAIPA", "votos_ca": 12566}, {"municipio": "SOGAMOSO", "votos_ca": 33729}, {"municipio": "TUNJA", "votos_ca": 48092}], "por_municipio": {"DUITAMA": {"top_candidatos_ca": [{"candidato": "Hector David Chaparro Chaparro", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 4559}, {"candidato": "Jaime Raul Salamanca Torres", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 2198}, {"candidato": "Hernel David Ortega Gomez", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 1558}, {"candidato": "Ramiro Barragan Adame", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 1518}, {"candidato": "Yamit Noe Hurtado Neira", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 1316}, {"candidato": "Ingrid Marlen Sogamoso Alfonso", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 1148}, {"candidato": "Nancy Yaneth Zapata Pachon", "partido": "PARTIDO DE LA U - PARTIDO MIRA", "color": "#610F6C", "votos": 1136}, {"candidato": "Jicly Esgardo Mutis Isaza", "partido": "PARTIDO CENTRO DEMOCRÁTICO", "color": "#1E477D", "votos": 1064}, {"candidato": "Eduar Alexis Triana Rincon", "partido": "PARTIDO CENTRO DEMOCRÁTICO", "color": "#1E477D", "votos": 924}, {"candidato": "Jose Dario Mahecha Castillo", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 920}], "partido_lider_se": {"partido": "PACTO HISTÓRICO SENADO", "color": "#7B2D8B", "votos": 15423}}, "PAIPA": {"top_candidatos_ca": [{"candidato": "Yamit Noe Hurtado Neira", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 4756}, {"candidato": "Jaime Raul Salamanca Torres", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 1465}, {"candidato": "Hector David Chaparro Chaparro", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 1393}, {"candidato": "Eduar Alexis Triana Rincon", "partido": "PARTIDO CENTRO DEMOCRÁTICO", "color": "#1E477D", "votos": 869}, {"candidato": "Wilder Ivan Suesca Ochoa", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 729}, {"candidato": "Ramiro Barragan Adame", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 353}, {"candidato": "Oscar Leonardo Avila Romero", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 273}, {"candidato": "Nancy Yaneth Zapata Pachon", "partido": "PARTIDO DE LA U - PARTIDO MIRA", "color": "#610F6C", "votos": 268}, {"candidato": "Ingrid Marlen Sogamoso Alfonso", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 195}, {"candidato": "Hernel David Ortega Gomez", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 185}], "partido_lider_se": {"partido": "ALIANZA POR COLOMBIA", "color": "#007C34", "votos": 4161}}, "SOGAMOSO": {"top_candidatos_ca": [{"candidato": "Hector David Chaparro Chaparro", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 5568}, {"candidato": "Ramiro Barragan Adame", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 2771}, {"candidato": "Diana Paola Herrera Nuñez", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 1962}, {"candidato": "Jaime Raul Salamanca Torres", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 1757}, {"candidato": "Nadia Alexandra Carreño Avella", "partido": "CR-NUEVO LIBERALISMO", "color": "#F95846", "votos": 1736}, {"candidato": "Fabian Camilo Rojas Barrera", "partido": "CR-NUEVO LIBERALISMO", "color": "#F95846", "votos": 1380}, {"candidato": "Yury Neill Diaz Aranguren", "partido": "PARTIDO DE LA U - PARTIDO MIRA", "color": "#610F6C", "votos": 1342}, {"candidato": "Jairo Enrique Castiblanco Parra", "partido": "PARTIDO DE LA U - PARTIDO MIRA", "color": "#610F6C", "votos": 1319}, {"candidato": "Oscar Leonardo Avila Romero", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 1237}, {"candidato": "Yamit Noe Hurtado Neira", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 1201}], "partido_lider_se": {"partido": "PACTO HISTÓRICO SENADO", "color": "#7B2D8B", "votos": 13957}}, "TUNJA": {"top_candidatos_ca": [{"candidato": "Ramiro Barragan Adame", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 4294}, {"candidato": "Jaime Raul Salamanca Torres", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 3986}, {"candidato": "Yamit Noe Hurtado Neira", "partido": "PARTIDO ALIANZA VERDE", "color": "#007C34", "votos": 3933}, {"candidato": "Ingrid Marlen Sogamoso Alfonso", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 2903}, {"candidato": "Fabian Camilo Rojas Barrera", "partido": "CR-NUEVO LIBERALISMO", "color": "#F95846", "votos": 2848}, {"candidato": "Wilder Ivan Suesca Ochoa", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 2756}, {"candidato": "Hector David Chaparro Chaparro", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 2341}, {"candidato": "Jose Dario Mahecha Castillo", "partido": "PARTIDO CONSERVADOR - MOVIMIENTO SALVACIÓN NACIONAL", "color": "#E8ACC5", "votos": 2242}, {"candidato": "Oscar Leonardo Avila Romero", "partido": "PARTIDO LIBERAL COLOMBIANO", "color": "#E07B00", "votos": 2180}, {"candidato": "Jairo Enrique Castiblanco Parra", "partido": "PARTIDO DE LA U - PARTIDO MIRA", "color": "#610F6C", "votos": 1911}], "partido_lider_se": {"partido": "PACTO HISTÓRICO SENADO", "color": "#7B2D8B", "votos": 20651}}}, "arrastre": {"DUITAMA": [{"puesto": "ANTIGUO TERMINAL DE TRANSPORTE", "votos_ca_verde": 439, "votos_se_verde": 539, "ratio_arrastre": 1.2278}, {"puesto": "AVENDAÑOS", "votos_ca_verde": 15, "votos_se_verde": 19, "ratio_arrastre": 1.2667}, {"puesto": "CARCEL", "votos_ca_verde": 6, "votos_se_verde": 2, "ratio_arrastre": 0.3333}, {"puesto": "COL GUILLERMO LEON VALENCIA", "votos_ca_verde": 838, "votos_se_verde": 1200, "ratio_arrastre": 1.432}, {"puesto": "COL JESUS EUCARISTIA", "votos_ca_verde": 243, "votos_se_verde": 364, "ratio_arrastre": 1.4979}, {"puesto": "COL LA NUEVA FAMILIA", "votos_ca_verde": 366, "votos_se_verde": 495, "ratio_arrastre": 1.3525}, {"puesto": "COL SANTO T DE AQUINO SD PRIA 1", "votos_ca_verde": 310, "votos_se_verde": 371, "ratio_arrastre": 1.1968}, {"puesto": "COL SANTO T DE AQUINO SD PRIA 2", "votos_ca_verde": 227, "votos_se_verde": 344, "ratio_arrastre": 1.5154}, {"puesto": "COL.FRANCISCO DE PAULA SANTAN", "votos_ca_verde": 369, "votos_se_verde": 416, "ratio_arrastre": 1.1274}, {"puesto": "COLEGIO BOYACA", "votos_ca_verde": 760, "votos_se_verde": 924, "ratio_arrastre": 1.2158}, {"puesto": "COLEGIO JAIRO ANIBAL NIÑO", "votos_ca_verde": 165, "votos_se_verde": 159, "ratio_arrastre": 0.9636}, {"puesto": "COLEGIO SALESIANO", "votos_ca_verde": 364, "votos_se_verde": 472, "ratio_arrastre": 1.2967}, {"puesto": "COLEGIO SEMINARIO", "votos_ca_verde": 439, "votos_se_verde": 554, "ratio_arrastre": 1.262}, {"puesto": "COLEGIO SIMON BOLIVAR", "votos_ca_verde": 435, "votos_se_verde": 543, "ratio_arrastre": 1.2483}, {"puesto": "EL CARMEN", "votos_ca_verde": 5, "votos_se_verde": 7, "ratio_arrastre": 1.4}, {"puesto": "PARQUE LA ESPERANZA", "votos_ca_verde": 323, "votos_se_verde": 415, "ratio_arrastre": 1.2848}, {"puesto": "QUEBRADA DE BECERRA", "votos_ca_verde": 52, "votos_se_verde": 51, "ratio_arrastre": 0.9808}, {"puesto": "SALON COMUNAL TOCOGUA", "votos_ca_verde": 62, "votos_se_verde": 77, "ratio_arrastre": 1.2419}, {"puesto": "SAN ANTONIO NORTE", "votos_ca_verde": 220, "votos_se_verde": 221, "ratio_arrastre": 1.0045}, {"puesto": "SIRATA", "votos_ca_verde": 39, "votos_se_verde": 45, "ratio_arrastre": 1.1538}, {"puesto": "SURBA Y BONZA", "votos_ca_verde": 220, "votos_se_verde": 319, "ratio_arrastre": 1.45}, {"puesto": "U.P.T.C.", "votos_ca_verde": 610, "votos_se_verde": 834, "ratio_arrastre": 1.3672}], "PAIPA": [{"puesto": "COLISEO MUNICIPAL DE DEPORTES DE PAIPA", "votos_ca_verde": 2042, "votos_se_verde": 1220, "ratio_arrastre": 0.5975}, {"puesto": "EL VENADO", "votos_ca_verde": 25, "votos_se_verde": 9, "ratio_arrastre": 0.36}, {"puesto": "I.E. EL ROSARIO SEDE CENTRAL", "votos_ca_verde": 1546, "votos_se_verde": 930, "ratio_arrastre": 0.6016}, {"puesto": "I.E.EL ROSARIO SEDE CAMPESTRE", "votos_ca_verde": 963, "votos_se_verde": 602, "ratio_arrastre": 0.6251}, {"puesto": "I.E.TOMAS VASQUEZ RODRIGUEZ", "votos_ca_verde": 2017, "votos_se_verde": 1183, "ratio_arrastre": 0.5865}, {"puesto": "PALERMO", "votos_ca_verde": 332, "votos_se_verde": 62, "ratio_arrastre": 0.1867}, {"puesto": "PANTANO DE VARGAS", "votos_ca_verde": 246, "votos_se_verde": 155, "ratio_arrastre": 0.6301}], "SOGAMOSO": [{"puesto": "COL NZADO GUSTAVO JIMENEZ", "votos_ca_verde": 276, "votos_se_verde": 320, "ratio_arrastre": 1.1594}, {"puesto": "COL POLITÉCNICO", "votos_ca_verde": 513, "votos_se_verde": 553, "ratio_arrastre": 1.078}, {"puesto": "COL REYES PATRIA", "votos_ca_verde": 553, "votos_se_verde": 560, "ratio_arrastre": 1.0127}, {"puesto": "COLEGIO CELCO", "votos_ca_verde": 485, "votos_se_verde": 479, "ratio_arrastre": 0.9876}, {"puesto": "CÁRCEL DEL CIRCUITO", "votos_ca_verde": 3, "votos_se_verde": 3, "ratio_arrastre": 1.0}, {"puesto": "EL CRUCERO", "votos_ca_verde": 12, "votos_se_verde": 19, "ratio_arrastre": 1.5833}, {"puesto": "IE FRANCISCO DE PAULA SANTANDER", "votos_ca_verde": 684, "votos_se_verde": 708, "ratio_arrastre": 1.0351}, {"puesto": "IE INSEANDES", "votos_ca_verde": 642, "votos_se_verde": 642, "ratio_arrastre": 1.0}, {"puesto": "IE INTEGRADO JOAQUIN GONZALEZ CAM", "votos_ca_verde": 896, "votos_se_verde": 835, "ratio_arrastre": 0.9319}, {"puesto": "IE LIBERTADOR", "votos_ca_verde": 752, "votos_se_verde": 817, "ratio_arrastre": 1.0864}, {"puesto": "IE MAGDALENA", "votos_ca_verde": 921, "votos_se_verde": 953, "ratio_arrastre": 1.0347}, {"puesto": "IE SILVESTRE ARENAS", "votos_ca_verde": 165, "votos_se_verde": 156, "ratio_arrastre": 0.9455}, {"puesto": "IE SUGAMUXI", "votos_ca_verde": 656, "votos_se_verde": 675, "ratio_arrastre": 1.029}, {"puesto": "IEPAGS SEDE ROSARIO", "votos_ca_verde": 722, "votos_se_verde": 754, "ratio_arrastre": 1.0443}, {"puesto": "LA PLAYITA", "votos_ca_verde": 15, "votos_se_verde": 35, "ratio_arrastre": 2.3333}, {"puesto": "LAS CINTAS", "votos_ca_verde": 12, "votos_se_verde": 14, "ratio_arrastre": 1.1667}, {"puesto": "MORCA", "votos_ca_verde": 51, "votos_se_verde": 49, "ratio_arrastre": 0.9608}, {"puesto": "UNIVERSIDAD DE BOYACA SEDE SOGAMOSO", "votos_ca_verde": 728, "votos_se_verde": 623, "ratio_arrastre": 0.8558}], "TUNJA": [{"puesto": "AUDITORIO GUSTAVO M CASTELLANOS COMFABOY", "votos_ca_verde": 715, "votos_se_verde": 778, "ratio_arrastre": 1.0881}, {"puesto": "C.A.S.D. BARRIO SAN ANTONIO", "votos_ca_verde": 651, "votos_se_verde": 656, "ratio_arrastre": 1.0077}, {"puesto": "CARCEL", "votos_ca_verde": 5, "votos_se_verde": 5, "ratio_arrastre": 1.0}, {"puesto": "COL DE BOYACA SD JOSE IGNACIO DE MARQUEZ", "votos_ca_verde": 493, "votos_se_verde": 521, "ratio_arrastre": 1.0568}, {"puesto": "COL. BOYACA FCO DE PAULA SANTANDER", "votos_ca_verde": 986, "votos_se_verde": 990, "ratio_arrastre": 1.0041}, {"puesto": "COLEGIO SALESIANO MALDONADO", "votos_ca_verde": 1083, "votos_se_verde": 1142, "ratio_arrastre": 1.0545}, {"puesto": "COLISEO CUBIERTO MUNICIPAL", "votos_ca_verde": 904, "votos_se_verde": 914, "ratio_arrastre": 1.0111}, {"puesto": "COLISEO I.R.D.ET", "votos_ca_verde": 821, "votos_se_verde": 917, "ratio_arrastre": 1.1169}, {"puesto": "COLISEO MUNICIPAL COMFABOY", "votos_ca_verde": 921, "votos_se_verde": 949, "ratio_arrastre": 1.0304}, {"puesto": "COLISEO SAN ANTONIO", "votos_ca_verde": 564, "votos_se_verde": 537, "ratio_arrastre": 0.9521}, {"puesto": "COLISEO UNIBOYACA", "votos_ca_verde": 901, "votos_se_verde": 888, "ratio_arrastre": 0.9856}, {"puesto": "CTRO DE REHAB. INTEG. DE BOYACA - CRIB", "votos_ca_verde": 9, "votos_se_verde": 8, "ratio_arrastre": 0.8889}, {"puesto": "I.E GUSTAVO ROJAS PINILLA SD CENTRAL", "votos_ca_verde": 671, "votos_se_verde": 762, "ratio_arrastre": 1.1356}, {"puesto": "I.E. ANTONIO JOSE SANDOVAL GOMEZ", "votos_ca_verde": 327, "votos_se_verde": 345, "ratio_arrastre": 1.055}, {"puesto": "I.E. SILVINO RODRIGUEZ SD MANZANARES", "votos_ca_verde": 126, "votos_se_verde": 122, "ratio_arrastre": 0.9683}, {"puesto": "I.T. GONZALO SUAREZ RENDON SEDE CENTRAL", "votos_ca_verde": 591, "votos_se_verde": 619, "ratio_arrastre": 1.0474}, {"puesto": "IE LIBERTADOR SIMON BOLIVAR SEDE CENTRAL", "votos_ca_verde": 514, "votos_se_verde": 573, "ratio_arrastre": 1.1148}, {"puesto": "IE LIBERTADOR SIMON BOLIVAR SN FRANCISCO", "votos_ca_verde": 397, "votos_se_verde": 434, "ratio_arrastre": 1.0932}, {"puesto": "IE NORMAL SUPERIOR SD JARDIN NACIONAL", "votos_ca_verde": 275, "votos_se_verde": 313, "ratio_arrastre": 1.1382}, {"puesto": "IES JUAN CASTELLANOS SD CRISANTO LUQUE", "votos_ca_verde": 953, "votos_se_verde": 936, "ratio_arrastre": 0.9822}, {"puesto": "INEM CARLOS ARTURO TORRES SD CENTRAL", "votos_ca_verde": 627, "votos_se_verde": 612, "ratio_arrastre": 0.9761}, {"puesto": "N. S. LEONOR ALVAREZ PINZON PRIMARIA", "votos_ca_verde": 205, "votos_se_verde": 243, "ratio_arrastre": 1.1854}, {"puesto": "PUENTE DE BOYACA", "votos_ca_verde": 53, "votos_se_verde": 35, "ratio_arrastre": 0.6604}, {"puesto": "PUESTO CENSO (COL. BOY SAN AGUSTIN)", "votos_ca_verde": 911, "votos_se_verde": 908, "ratio_arrastre": 0.9967}, {"puesto": "UNIVERSIDAD JUAN DE CASTELLANOS", "votos_ca_verde": 1230, "votos_se_verde": 1224, "ratio_arrastre": 0.9951}, {"puesto": "UNIVERSIDAD SANTO TOMAS", "votos_ca_verde": 903, "votos_se_verde": 865, "ratio_arrastre": 0.9579}]}} /*__DATA_END__*/;
+
+// ---------- Tema (bonus: dark mode toggle con CSS custom properties) ----------
+const root = document.documentElement;
+const themeBtn = document.getElementById('themeToggleBtn');
+function applyTheme(t) {
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Modo claro' : '🌙 Modo oscuro';
+  localStorage.setItem('utl-dashboard-theme', t);
+}
+applyTheme(localStorage.getItem('utl-dashboard-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+themeBtn.addEventListener('click', () => {
+  applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+// ---------- Utilidades ----------
+function fmt(n) { return new Intl.NumberFormat('es-CO').format(n); }
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+// Gráfico de barras verticales (columnas) simple, sin dependencias externas.
+function renderBarChartVertical(container, { labels, values, colors, valueFmt = fmt, height = 300 }) {
+  container.innerHTML = '';
+  const width = Math.max(container.clientWidth || 600, labels.length * 70);
+  const marginL = 60, marginR = 20, marginT = 20, marginB = 70;
+  const plotW = width - marginL - marginR;
+  const plotH = height - marginT - marginB;
+  const maxVal = Math.max(1, ...values);
+  const barW = plotW / labels.length * 0.6;
+  const gap = plotW / labels.length;
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, width: '100%', height });
+
+  // eje Y (líneas guía)
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const y = marginT + plotH - (plotH * i / steps);
+    const val = maxVal * i / steps;
+    svg.appendChild(svgEl('line', { x1: marginL, x2: marginL + plotW, y1: y, y2: y, class: 'axis-line' }));
+    const t = svgEl('text', { x: marginL - 8, y: y + 4, class: 'bar-value', 'text-anchor': 'end' });
+    t.textContent = valueFmt(Math.round(val));
+    svg.appendChild(t);
+  }
+
+  labels.forEach((label, i) => {
+    const val = values[i];
+    const barH = (val / maxVal) * plotH;
+    const x = marginL + i * gap + (gap - barW) / 2;
+    const y = marginT + plotH - barH;
+
+    const rect = svgEl('rect', {
+      x, y, width: barW, height: barH,
+      fill: (colors && colors[i]) || '#1E477D',
+      rx: 4, class: 'bar-rect',
+    });
+    const title = svgEl('title', {});
+    title.textContent = `${label}: ${valueFmt(val)}`;
+    rect.appendChild(title);
+    svg.appendChild(rect);
+
+    const vt = svgEl('text', { x: x + barW / 2, y: y - 6, class: 'bar-value', 'text-anchor': 'middle' });
+    vt.textContent = valueFmt(val);
+    svg.appendChild(vt);
+
+    const lt = svgEl('text', { x: x + barW / 2, y: height - marginB + 16, class: 'bar-label', 'text-anchor': 'middle' });
+    lt.textContent = label.length > 12 ? label.slice(0, 11) + '…' : label;
+    lt.appendChild(svgEl('title', {})).parentNode.querySelector('title').textContent = label;
+    svg.appendChild(lt);
+  });
+
+  container.appendChild(svg);
+}
+
+// Gráfico de barras horizontales (para rankings de candidatos)
+function renderBarChartHorizontal(container, { labels, values, colors, valueFmt = fmt }) {
+  container.innerHTML = '';
+  const rowH = 30;
+  const marginL = 210, marginR = 60, marginT = 10, marginB = 10;
+  const width = Math.max(container.clientWidth || 700, 600);
+  const plotW = width - marginL - marginR;
+  const height = labels.length * rowH + marginT + marginB;
+  const maxVal = Math.max(1, ...values);
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, width: '100%', height });
+
+  labels.forEach((label, i) => {
+    const val = values[i];
+    const barW = (val / maxVal) * plotW;
+    const y = marginT + i * rowH;
+
+    const lt = svgEl('text', { x: marginL - 10, y: y + rowH / 2 + 4, class: 'bar-label', 'text-anchor': 'end' });
+    lt.textContent = label;
+    svg.appendChild(lt);
+
+    const rect = svgEl('rect', {
+      x: marginL, y: y + 5, width: Math.max(barW, 2), height: rowH - 10,
+      fill: (colors && colors[i]) || '#1E477D', rx: 4, class: 'bar-rect',
+    });
+    const title = svgEl('title', {});
+    title.textContent = `${label}: ${valueFmt(val)}`;
+    rect.appendChild(title);
+    svg.appendChild(rect);
+
+    const vt = svgEl('text', { x: marginL + barW + 8, y: y + rowH / 2 + 4, class: 'bar-value' });
+    vt.textContent = valueFmt(val);
+    svg.appendChild(vt);
+  });
+
+  container.appendChild(svg);
+}
+
+// Gráfico de barras + línea de referencia horizontal (para el ratio de arrastre)
+function renderBarWithReference(container, { labels, values, refValue, barColor = '#007C34', refColor = '#E07B00', height = 340 }) {
+  container.innerHTML = '';
+  const width = Math.max(container.clientWidth || 600, labels.length * 55);
+  const marginL = 55, marginR = 20, marginT = 20, marginB = 90;
+  const plotW = width - marginL - marginR;
+  const plotH = height - marginT - marginB;
+  const maxVal = Math.max(refValue * 1.2, ...values, 0.1);
+  const barW = plotW / labels.length * 0.6;
+  const gap = plotW / labels.length;
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, width: '100%', height });
+
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const y = marginT + plotH - (plotH * i / steps);
+    const val = maxVal * i / steps;
+    svg.appendChild(svgEl('line', { x1: marginL, x2: marginL + plotW, y1: y, y2: y, class: 'axis-line' }));
+    const t = svgEl('text', { x: marginL - 8, y: y + 4, class: 'bar-value', 'text-anchor': 'end' });
+    t.textContent = val.toFixed(2);
+    svg.appendChild(t);
+  }
+
+  labels.forEach((label, i) => {
+    const val = values[i];
+    const barH = (val / maxVal) * plotH;
+    const x = marginL + i * gap + (gap - barW) / 2;
+    const y = marginT + plotH - barH;
+    const rect = svgEl('rect', { x, y, width: barW, height: barH, fill: barColor, rx: 3, class: 'bar-rect' });
+    const title = svgEl('title', {});
+    title.textContent = `${label}: ratio=${val.toFixed(4)}`;
+    rect.appendChild(title);
+    svg.appendChild(rect);
+
+    const lt = svgEl('text', {
+      x: x + barW / 2, y: height - marginB + 14, class: 'bar-label', 'text-anchor': 'end',
+      transform: `rotate(-55 ${x + barW / 2} ${height - marginB + 14})`,
+    });
+    lt.textContent = label.length > 22 ? label.slice(0, 21) + '…' : label;
+    svg.appendChild(lt);
+  });
+
+  const refY = marginT + plotH - (refValue / maxVal) * plotH;
+  svg.appendChild(svgEl('line', { x1: marginL, x2: marginL + plotW, y1: refY, y2: refY, class: 'ref-line' }));
+  const refLabel = svgEl('text', { x: marginL + plotW - 4, y: refY - 6, class: 'bar-value', 'text-anchor': 'end' });
+  refLabel.textContent = `referencia = ${refValue.toFixed(1)}`;
+  svg.appendChild(refLabel);
+
+  container.appendChild(svg);
+}
+
+// ---------- Comparativo ----------
+const comparativo = DASHBOARD_DATA.comparativo;
+renderBarChartVertical(document.getElementById('chartComparativo'), {
+  labels: comparativo.map(d => d.municipio),
+  values: comparativo.map(d => d.votos_ca),
+  colors: comparativo.map(() => '#1E477D'),
+});
+
+// ---------- Por municipio ----------
+const selPorMuni = document.getElementById('selMunicipioPorMuni');
+const badgeLiderSE = document.getElementById('badgePartidoLiderSE');
+
+DASHBOARD_DATA.municipios.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m; opt.textContent = m;
+  selPorMuni.appendChild(opt);
+});
+
+function renderPorMunicipio(muni) {
+  const info = DASHBOARD_DATA.por_municipio[muni];
+  if (!info) return;
+
+  const lider = info.partido_lider_se;
+  if (lider) {
+    badgeLiderSE.innerHTML = `<span class="dot" style="background:${lider.color}"></span> Líder Senado: ${lider.partido} (${fmt(lider.votos)} votos)`;
+  } else {
+    badgeLiderSE.textContent = 'Sin datos de Senado';
+  }
+
+  const top = info.top_candidatos_ca;
+  renderBarChartHorizontal(document.getElementById('chartPorMunicipio'), {
+    labels: top.map(c => c.candidato),
+    values: top.map(c => c.votos),
+    colors: top.map(c => c.color),
+  });
+}
+
+selPorMuni.addEventListener('change', () => renderPorMunicipio(selPorMuni.value));
+
+// ---------- Arrastre ----------
+const selArrastre = document.getElementById('selMunicipioArrastre');
+let arrastreDataActual = [];
+
+DASHBOARD_DATA.municipios.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m; opt.textContent = m;
+  selArrastre.appendChild(opt);
+});
+
+function renderArrastre(muni) {
+  const rows = (DASHBOARD_DATA.arrastre[muni] || []).slice().sort((a, b) => a.puesto.localeCompare(b.puesto));
+  arrastreDataActual = rows;
+
+  renderBarWithReference(document.getElementById('chartArrastre'), {
+    labels: rows.map(r => r.puesto),
+    values: rows.map(r => r.ratio_arrastre),
+    refValue: 1.0,
+  });
+}
+
+selArrastre.addEventListener('change', () => renderArrastre(selArrastre.value));
+window.addEventListener('resize', () => {
+  renderPorMunicipio(selPorMuni.value);
+  renderArrastre(selArrastre.value);
+});
+
+// ---------- Init ----------
+if (DASHBOARD_DATA.municipios.length > 0) {
+  selPorMuni.value = DASHBOARD_DATA.municipios[0];
+  selArrastre.value = DASHBOARD_DATA.municipios[0];
+  renderPorMunicipio(DASHBOARD_DATA.municipios[0]);
+  renderArrastre(DASHBOARD_DATA.municipios[0]);
+}
+
+// ---------- Bonus: exportar CSV (tabla de arrastre del municipio visible) ----------
+document.getElementById('exportCsvBtn').addEventListener('click', () => {
+  if (!arrastreDataActual.length) return;
+  const header = ['municipio', 'puesto', 'votos_ca_verde', 'votos_se_verde', 'ratio_arrastre'];
+  const muni = selArrastre.value;
+  const lines = [header.join(',')];
+  arrastreDataActual.forEach(r => {
+    lines.push([muni, `"${r.puesto.replace(/"/g, '""')}"`, r.votos_ca_verde, r.votos_se_verde, r.ratio_arrastre].join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `arrastre_verde_${muni}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>
