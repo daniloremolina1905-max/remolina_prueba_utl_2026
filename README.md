@@ -36,8 +36,9 @@ formas de obtenerlo:
 
 1. **Regenerarlo (recomendado, ~2-3 min):** `python scraper/scraper.py` —
    determinístico, reproduce exactamente los mismos datos.
-2. **Descargarlo del Release de GitHub:** `<PENDIENTE: subir como Release
-   asset y pegar aquí el link, ver instrucciones de entrega del enunciado>`.
+2. **Descargarlo del Release de GitHub:**
+   [`puestos_2026.db` (v1.0, 87.9 MB)](https://github.com/daniloremolina1905-max/remolina_prueba_utl_2026/releases/download/v1.0/puestos_2026.db) —
+   colocarlo en `db/puestos_2026.db`.
 
 ## Pipeline de ejecución
 
