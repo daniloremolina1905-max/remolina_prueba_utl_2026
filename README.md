@@ -7,9 +7,9 @@ dashboard HTML interactivo y visualizaciones en Python.
 
 ## Candidato
 
-- **Nombre:** Remolina [Nombre] [Apellido] — *(completar en el formulario de entrega)*
+- **Nombre:** DANILO JOSE REMOLINA ANGEL
 - **Email:** daniloremolina@gmail.com
-- **Repositorio:** `https://github.com/TU_USUARIO/remolina_prueba_utl_2026` *(actualizar tras crear el repo)*
+- **Repositorio:** `https://github.com/Daniloremolina1905-MAX/remolina_prueba_utl_2026`
 
 ## Instalación
 
