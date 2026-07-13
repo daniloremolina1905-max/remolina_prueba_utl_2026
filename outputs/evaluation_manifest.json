@@ -1,10 +1,10 @@
 {
   "meta": {
-    "nombre": "REMOLINA APELLIDO NOMBRE",
-    "email": "correo@ejemplo.com",
-    "repo_url": "https://github.com/TU_USUARIO/remolina_prueba_utl_2026"
+    "nombre": "TODO: NOMBRE COMPLETO (ej. REMOLINA XXXX DANILO XXXX)",
+    "email": "daniloremolina@gmail.com",
+    "repo_url": "https://github.com/TODO_TU_USUARIO/remolina_prueba_utl_2026"
   },
-  "generado_en": "2026-07-13T16:42:17.655598+00:00",
+  "generado_en": "2026-07-13T16:45:04.089020+00:00",
   "reto1_2_extraccion_y_bd": {
     "status": "4/4 municipios",
     "municipios_esperados": 4,

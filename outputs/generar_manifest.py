@@ -25,9 +25,9 @@ from pathlib import Path
 # META — EDITAR ANTES DE ENTREGAR
 # ============================================================================
 META = {
-    "nombre": "REMOLINA APELLIDO NOMBRE",
-    "email": "correo@ejemplo.com",
-    "repo_url": "https://github.com/TU_USUARIO/remolina_prueba_utl_2026",
+    "nombre": "TODO: NOMBRE COMPLETO (ej. REMOLINA XXXX DANILO XXXX)",
+    "email": "daniloremolina@gmail.com",
+    "repo_url": "https://github.com/TODO_TU_USUARIO/remolina_prueba_utl_2026",
 }
 # ============================================================================
 
