@@ -5,6 +5,13 @@
     "SOGAMOSO",
     "TUNJA"
   ],
+  "kpis": {
+    "votos_ca_total": 120570,
+    "votos_se_total": 95816,
+    "puestos_total": 73,
+    "mesas_total": 1107,
+    "municipios_total": 4
+  },
   "comparativo": [
     {
       "municipio": "DUITAMA",

@@ -108,6 +108,34 @@ def build_por_municipio(conn: sqlite3.Connection) -> dict:
     return out
 
 
+def build_kpis(conn: sqlite3.Connection) -> dict:
+    """Indicadores globales para la fila de tarjetas KPI del dashboard."""
+
+    def total_votos(eleccion: str) -> int:
+        row = conn.execute(
+            """
+            SELECT SUM(v.votos) AS total
+            FROM votos v
+            JOIN candidatos c ON c.id = v.candidato_id
+            WHERE v.eleccion = ? AND c.nombre != 'Voto Solo Por Lista'
+            """,
+            (eleccion,),
+        ).fetchone()
+        return row["total"] or 0
+
+    puestos_total = conn.execute("SELECT COUNT(*) AS n FROM puestos").fetchone()["n"]
+    mesas_total = conn.execute("SELECT COUNT(*) AS n FROM mesas").fetchone()["n"]
+    municipios_total = conn.execute("SELECT COUNT(*) AS n FROM municipios").fetchone()["n"]
+
+    return {
+        "votos_ca_total": total_votos("CA"),
+        "votos_se_total": total_votos("SE"),
+        "puestos_total": puestos_total,
+        "mesas_total": mesas_total,
+        "municipios_total": municipios_total,
+    }
+
+
 def build_arrastre(conn: sqlite3.Connection) -> dict:
     """Ratio Verde SE/CA por puesto, agrupado por municipio (reutiliza sql/tarea_3_1.sql)."""
     sql_path = Path(__file__).resolve().parent.parent / "sql" / "tarea_3_1.sql"
@@ -131,6 +159,7 @@ def build_data() -> dict:
     conn = connect()
     data = {
         "municipios": build_municipios(conn),
+        "kpis": build_kpis(conn),
         "comparativo": build_comparativo(conn),
         "por_municipio": build_por_municipio(conn),
         "arrastre": build_arrastre(conn),
