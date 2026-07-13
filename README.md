@@ -17,11 +17,11 @@ Requiere Python 3.10+.
 
 ```bash
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
+```
 
+Activar el entorno (Windows: `.venv\Scripts\activate` · macOS/Linux: `source .venv/bin/activate`), luego:
+
+```bash
 pip install -r requirements.txt
 ```
 
@@ -45,30 +45,38 @@ formas de obtenerlo:
 Reproducible en menos de 10 minutos (73 puestos × 2 elecciones ≈ 150
 peticiones HTTP a la API real; toma ~2-3 minutos con `--delay 0.1`).
 
+**1) Extraer y cargar** los 4 municipios (Cámara + Senado) en `db/puestos_2026.db`:
 ```bash
-# 1) Extraer y cargar los 4 municipios (Cámara + Senado) en db/puestos_2026.db
 python scraper/scraper.py
+```
 
-# 2) (opcional) Solo contar puestos/mesas sin descargar — bonus +3
+**2) (opcional)** Solo contar puestos/mesas sin descargar — bonus +3:
+```bash
 python scraper/scraper.py --preflight
+```
 
-# 3) Verificar las 3 consultas SQL manualmente (opcional, ya las corre el manifest)
+**3) Verificar una consulta SQL manualmente** (opcional, ya las corre el manifest en el paso 6):
+```bash
 sqlite3 db/puestos_2026.db < sql/tarea_3_1.sql
+```
 
-# 4) Generar dashboard/data.json y embeberlo en dashboard/index.html
+**4) Generar `dashboard/data.json`** y embeberlo en `dashboard/index.html`:
+```bash
 python dashboard/export_data.py
+```
 
-# 5) Generar las visualizaciones
+**5) Generar las visualizaciones**:
+```bash
 python viz/heatmap.py
 python viz/scatter.py
-
-# 6) Editar la sección META de outputs/generar_manifest.py (nombre, email, url del repo)
-#    y generar el manifiesto de evaluación
-python outputs/generar_manifest.py
-
-# 7) Abrir el dashboard (doble clic o):
-#    dashboard/index.html   ← funciona sin servidor, abrir directo en Chrome/Firefox
 ```
+
+**6) Editar la sección META** de `outputs/generar_manifest.py` (nombre, email, url del repo) y generar el manifiesto de evaluación:
+```bash
+python outputs/generar_manifest.py
+```
+
+**7) Abrir el dashboard** — doble clic en `dashboard/index.html`, funciona sin servidor, directo en Chrome/Firefox.
 
 Re-ejecutar `scraper.py` en cualquier momento es seguro: las filas de `votos`
 tienen `UNIQUE(mesa_id, eleccion, codpar, candidato_id)` y se insertan con

@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS carga_log (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT,
     municipio          TEXT NOT NULL,
     eleccion           TEXT NOT NULL,
-    fuente             TEXT NOT NULL,   -- 'api_live' | 'sample_data'
+    fuente             TEXT NOT NULL,   -- 'api_live' | 'cache_local' | 'mixta'
     filas_insertadas   INTEGER NOT NULL DEFAULT 0,
     filas_omitidas     INTEGER NOT NULL DEFAULT 0,
     fecha_carga        TEXT NOT NULL    -- ISO 8601
