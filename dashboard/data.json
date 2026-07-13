@@ -15,19 +15,31 @@
   "comparativo": [
     {
       "municipio": "DUITAMA",
-      "votos_ca": 26183
+      "votos_ca": 26183,
+      "votos_se": 21603,
+      "puestos": 22,
+      "mesas": 287
     },
     {
       "municipio": "PAIPA",
-      "votos_ca": 12566
+      "votos_ca": 12566,
+      "votos_se": 8910,
+      "puestos": 7,
+      "mesas": 95
     },
     {
       "municipio": "SOGAMOSO",
-      "votos_ca": 33729
+      "votos_ca": 33729,
+      "votos_se": 25788,
+      "puestos": 18,
+      "mesas": 301
     },
     {
       "municipio": "TUNJA",
-      "votos_ca": 48092
+      "votos_ca": 48092,
+      "votos_se": 39515,
+      "puestos": 26,
+      "mesas": 424
     }
   ],
   "por_municipio": {
@@ -97,8 +109,41 @@
       "partido_lider_se": {
         "partido": "PACTO HISTÓRICO SENADO",
         "color": "#7B2D8B",
-        "votos": 15423
-      }
+        "votos": 15423,
+        "pct": 31.6
+      },
+      "partidos_se": [
+        {
+          "partido": "PACTO HISTÓRICO SENADO",
+          "color": "#7B2D8B",
+          "votos": 15423
+        },
+        {
+          "partido": "PARTIDO CENTRO DEMOCRÁTICO",
+          "color": "#1E477D",
+          "votos": 9205
+        },
+        {
+          "partido": "ALIANZA POR COLOMBIA",
+          "color": "#007C34",
+          "votos": 8371
+        },
+        {
+          "partido": "PARTIDO CONSERVADOR COLOMBIANO",
+          "color": "#0867B1",
+          "votos": 3098
+        },
+        {
+          "partido": "MOVIMIENTO SALVACIÓN NACIONAL",
+          "color": "#DBAEE8",
+          "votos": 2794
+        },
+        {
+          "partido": "AHORA COLOMBIA",
+          "color": "#C5337F",
+          "votos": 2706
+        }
+      ]
     },
     "PAIPA": {
       "top_candidatos_ca": [
@@ -166,8 +211,41 @@
       "partido_lider_se": {
         "partido": "ALIANZA POR COLOMBIA",
         "color": "#007C34",
-        "votos": 4161
-      }
+        "votos": 4161,
+        "pct": 25.4
+      },
+      "partidos_se": [
+        {
+          "partido": "ALIANZA POR COLOMBIA",
+          "color": "#007C34",
+          "votos": 4161
+        },
+        {
+          "partido": "PACTO HISTÓRICO SENADO",
+          "color": "#7B2D8B",
+          "votos": 3669
+        },
+        {
+          "partido": "PARTIDO CENTRO DEMOCRÁTICO",
+          "color": "#1E477D",
+          "votos": 2771
+        },
+        {
+          "partido": "PARTIDO CONSERVADOR COLOMBIANO",
+          "color": "#0867B1",
+          "votos": 1649
+        },
+        {
+          "partido": "PARTIDO LIBERAL COLOMBIANO",
+          "color": "#E07B00",
+          "votos": 1530
+        },
+        {
+          "partido": "AHORA COLOMBIA",
+          "color": "#C5337F",
+          "votos": 969
+        }
+      ]
     },
     "SOGAMOSO": {
       "top_candidatos_ca": [
@@ -235,8 +313,41 @@
       "partido_lider_se": {
         "partido": "PACTO HISTÓRICO SENADO",
         "color": "#7B2D8B",
-        "votos": 13957
-      }
+        "votos": 13957,
+        "pct": 27.4
+      },
+      "partidos_se": [
+        {
+          "partido": "PACTO HISTÓRICO SENADO",
+          "color": "#7B2D8B",
+          "votos": 13957
+        },
+        {
+          "partido": "ALIANZA POR COLOMBIA",
+          "color": "#007C34",
+          "votos": 8195
+        },
+        {
+          "partido": "PARTIDO CENTRO DEMOCRÁTICO",
+          "color": "#1E477D",
+          "votos": 8182
+        },
+        {
+          "partido": "MOVIMIENTO SALVACIÓN NACIONAL",
+          "color": "#DBAEE8",
+          "votos": 5645
+        },
+        {
+          "partido": "PARTIDO LIBERAL COLOMBIANO",
+          "color": "#E07B00",
+          "votos": 5035
+        },
+        {
+          "partido": "PARTIDO CONSERVADOR COLOMBIANO",
+          "color": "#0867B1",
+          "votos": 2938
+        }
+      ]
     },
     "TUNJA": {
       "top_candidatos_ca": [
@@ -304,8 +415,41 @@
       "partido_lider_se": {
         "partido": "PACTO HISTÓRICO SENADO",
         "color": "#7B2D8B",
-        "votos": 20651
-      }
+        "votos": 20651,
+        "pct": 27.8
+      },
+      "partidos_se": [
+        {
+          "partido": "PACTO HISTÓRICO SENADO",
+          "color": "#7B2D8B",
+          "votos": 20651
+        },
+        {
+          "partido": "ALIANZA POR COLOMBIA",
+          "color": "#007C34",
+          "votos": 16296
+        },
+        {
+          "partido": "PARTIDO CENTRO DEMOCRÁTICO",
+          "color": "#1E477D",
+          "votos": 10613
+        },
+        {
+          "partido": "PARTIDO LIBERAL COLOMBIANO",
+          "color": "#E07B00",
+          "votos": 5978
+        },
+        {
+          "partido": "PARTIDO CONSERVADOR COLOMBIANO",
+          "color": "#0867B1",
+          "votos": 5153
+        },
+        {
+          "partido": "MOVIMIENTO SALVACIÓN NACIONAL",
+          "color": "#DBAEE8",
+          "votos": 4105
+        }
+      ]
     }
   },
   "arrastre": {

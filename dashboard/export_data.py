@@ -39,21 +39,48 @@ def build_municipios(conn: sqlite3.Connection) -> list[str]:
 
 
 def build_comparativo(conn: sqlite3.Connection) -> list[dict]:
-    """Votos CA totales (válidos, sin voto-solo-lista) por municipio."""
-    rows = conn.execute(
+    """Votos CA y SE totales (válidos, sin voto-solo-lista) por municipio, con conteo de puestos/mesas."""
+
+    def votos_por_municipio(eleccion: str) -> dict[str, int]:
+        rows = conn.execute(
+            """
+            SELECT mu.nombre AS municipio, SUM(v.votos) AS votos
+            FROM votos v
+            JOIN mesas me ON me.id = v.mesa_id
+            JOIN puestos pu ON pu.id = me.puesto_id
+            JOIN municipios mu ON mu.id = pu.municipio_id
+            JOIN candidatos c ON c.id = v.candidato_id
+            WHERE v.eleccion = ? AND c.nombre != 'Voto Solo Por Lista'
+            GROUP BY mu.id
+            """,
+            (eleccion,),
+        ).fetchall()
+        return {r["municipio"]: r["votos"] for r in rows}
+
+    votos_ca = votos_por_municipio("CA")
+    votos_se = votos_por_municipio("SE")
+
+    conteos = conn.execute(
         """
-        SELECT mu.nombre AS municipio, SUM(v.votos) AS votos_ca
-        FROM votos v
-        JOIN mesas me ON me.id = v.mesa_id
-        JOIN puestos pu ON pu.id = me.puesto_id
-        JOIN municipios mu ON mu.id = pu.municipio_id
-        JOIN candidatos c ON c.id = v.candidato_id
-        WHERE v.eleccion = 'CA' AND c.nombre != 'Voto Solo Por Lista'
+        SELECT mu.nombre AS municipio, COUNT(DISTINCT pu.id) AS puestos, COUNT(DISTINCT me.id) AS mesas
+        FROM municipios mu
+        JOIN puestos pu ON pu.municipio_id = mu.id
+        JOIN mesas me ON me.puesto_id = pu.id
         GROUP BY mu.id
         ORDER BY mu.nombre
         """
     ).fetchall()
-    return [{"municipio": r["municipio"], "votos_ca": r["votos_ca"]} for r in rows]
+
+    return [
+        {
+            "municipio": r["municipio"],
+            "votos_ca": votos_ca.get(r["municipio"], 0),
+            "votos_se": votos_se.get(r["municipio"], 0),
+            "puestos": r["puestos"],
+            "mesas": r["mesas"],
+        }
+        for r in conteos
+    ]
 
 
 def build_por_municipio(conn: sqlite3.Connection) -> dict:
@@ -78,7 +105,7 @@ def build_por_municipio(conn: sqlite3.Connection) -> dict:
             (muni,),
         ).fetchall()
 
-        partido_lider = conn.execute(
+        partidos_se = conn.execute(
             """
             SELECT pa.nombre AS partido, pa.color AS color, SUM(v.votos) AS votos
             FROM votos v
@@ -89,10 +116,24 @@ def build_por_municipio(conn: sqlite3.Connection) -> dict:
             WHERE v.eleccion = 'SE' AND mu.nombre = ?
             GROUP BY v.codpar
             ORDER BY votos DESC
-            LIMIT 1
+            LIMIT 6
             """,
             (muni,),
-        ).fetchone()
+        ).fetchall()
+
+        total_se_municipio = conn.execute(
+            """
+            SELECT SUM(v.votos) AS total
+            FROM votos v
+            JOIN mesas me ON me.id = v.mesa_id
+            JOIN puestos pu ON pu.id = me.puesto_id
+            JOIN municipios mu ON mu.id = pu.municipio_id
+            WHERE v.eleccion = 'SE' AND mu.nombre = ?
+            """,
+            (muni,),
+        ).fetchone()["total"] or 1
+
+        lider = partidos_se[0] if partidos_se else None
 
         out[muni] = {
             "top_candidatos_ca": [
@@ -100,10 +141,18 @@ def build_por_municipio(conn: sqlite3.Connection) -> dict:
                 for r in top_candidatos
             ],
             "partido_lider_se": (
-                {"partido": partido_lider["partido"], "color": partido_lider["color"], "votos": partido_lider["votos"]}
-                if partido_lider
+                {
+                    "partido": lider["partido"],
+                    "color": lider["color"],
+                    "votos": lider["votos"],
+                    "pct": round(100.0 * lider["votos"] / total_se_municipio, 1),
+                }
+                if lider
                 else None
             ),
+            "partidos_se": [
+                {"partido": r["partido"], "color": r["color"], "votos": r["votos"]} for r in partidos_se
+            ],
         }
     return out
 

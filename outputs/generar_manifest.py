@@ -191,9 +191,11 @@ def check_bonus() -> list[str]:
         bonus.append("3.3 explicacion_top_ca_vs_atribucion_se (+2)")
 
     dashboard_src = (DASHBOARD_DIR / "index.html").read_text(encoding="utf-8") if (DASHBOARD_DIR / "index.html").exists() else ""
-    if "data-theme" in dashboard_src and "themeToggleBtn" in dashboard_src:
+    if ("data-theme" in dashboard_src or "data-tema" in dashboard_src) and (
+        "themeToggleBtn" in dashboard_src or "btn-tema" in dashboard_src
+    ):
         bonus.append("4 dark_mode (+3)")
-    if "exportCsvBtn" in dashboard_src:
+    if "exportCsvBtn" in dashboard_src or "btn-csv" in dashboard_src:
         bonus.append("4 export_csv (+2)")
 
     if "--municipios" in scraper_src and "resolver_municipio" in scraper_src:
