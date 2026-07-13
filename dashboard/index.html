@@ -7,16 +7,18 @@
 <!-- Autocontenido: sin CDN (Google Fonts / Chart.js); gráficos en SVG nativo. -->
 <style>
   :root{
-    --papel:#FBFBFC; --panel:#FFFFFF; --tinta:#14181F; --tinta-2:#5A6472;
+    --papel:#F3F4F7; --panel:#FFFFFF; --tinta:#14181F; --tinta-2:#5A6472;
     --regla:#E2E6EB; --regla-fuerte:#C6CCD4; --realce:#F1F3F6;
     --verde:#007C34; --pacto:#7B2D8B; --centro:#1E477D; --conserv:#E07B00;
-    --radio:3px;
+    --sombra:0 1px 2px rgba(20,24,31,.04),0 6px 16px -8px rgba(20,24,31,.10);
+    --radio:3px; --radio-tarjeta:8px;
     --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,"Liberation Mono",Menlo,monospace;
     --sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
   }
   html[data-tema="oscuro"]{
-    --papel:#0F1319; --panel:#161B23; --tinta:#EDF0F4; --tinta-2:#98A2B0;
+    --papel:#0A0D12; --panel:#161B23; --tinta:#EDF0F4; --tinta-2:#98A2B0;
     --regla:#262D38; --regla-fuerte:#3A4351; --realce:#1D242E;
+    --sombra:0 1px 2px rgba(0,0,0,.3),0 8px 20px -10px rgba(0,0,0,.5);
   }
   *{box-sizing:border-box}
   body{
@@ -43,19 +45,23 @@
   button:focus-visible{outline:2px solid var(--verde);outline-offset:2px}
   button.chico{padding:5px 10px;font-size:12px}
 
-  .libro{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-         border-top:1px solid var(--regla);background:var(--panel)}
-  .celda{padding:14px 0 18px;border-right:1px solid var(--regla)}
-  .celda:last-child{border-right:0}
+  .eyebrow{font:700 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+           color:var(--verde);margin-bottom:6px;display:block}
+
+  .libro-envoltorio{padding:20px 0 6px}
+  .libro{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .celda{padding:15px 16px 17px;background:var(--panel);border:1px solid var(--regla);
+         border-radius:var(--radio-tarjeta);box-shadow:var(--sombra)}
   .celda .k{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-2)}
-  .celda .v{font:600 26px/1.2 var(--mono);margin-top:6px;font-variant-numeric:tabular-nums}
+  .celda .v{font:600 26px/1.2 var(--mono);margin-top:8px;font-variant-numeric:tabular-nums}
 
   section{padding:44px 0;border-bottom:1px solid var(--regla)}
   .titulo{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
   .titulo h2{font-family:var(--sans);font-weight:700;font-size:20px;margin:0;letter-spacing:-.01em}
   .titulo .rotulo{white-space:nowrap}
   .nota{color:var(--tinta-2);font-size:13.5px;margin:0 0 22px;max-width:72ch}
-  .lienzo{background:var(--panel);border:1px solid var(--regla);border-radius:var(--radio);padding:18px}
+  .lienzo{background:var(--panel);border:1px solid var(--regla);border-radius:var(--radio-tarjeta);
+          padding:18px;box-shadow:var(--sombra)}
   .dos{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:start}
   @media(max-width:840px){.dos{grid-template-columns:1fr}}
 
@@ -68,7 +74,8 @@
   .barra-filtro .izq{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
   .ficha{border:1px solid var(--regla);border-left:6px solid var(--verde);
-         background:var(--panel);border-radius:var(--radio);padding:18px 18px 20px}
+         background:var(--panel);border-radius:var(--radio-tarjeta);padding:18px 18px 20px;
+         box-shadow:var(--sombra)}
   .ficha .k{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-2)}
   .ficha .partido{font-family:var(--sans);font-weight:700;font-size:20px;margin:8px 0 2px}
   .ficha .cifra{font:600 32px/1.1 var(--mono);font-variant-numeric:tabular-nums}
@@ -140,13 +147,19 @@
       </div>
     </div>
   </div>
-  <div class="cinta"><div class="libro" id="libro"></div></div>
+  <div class="cinta">
+    <div class="libro-envoltorio">
+      <span class="eyebrow">Resumen ejecutivo</span>
+      <div class="libro" id="libro"></div>
+    </div>
+  </div>
 </header>
 
 <main class="cinta">
 
   <!-- 01 COMPARATIVO -->
   <section id="comparativo">
+    <span class="eyebrow">Análisis comparativo</span>
     <div class="titulo"><span class="rotulo">01</span><h2>Comparativo entre municipios</h2></div>
     <p class="nota">Votos válidos totales de Cámara y Senado por municipio (excluye voto solo por lista).</p>
     <div class="lienzo"><div class="chart-wrap" id="g-comparativo"></div></div>
@@ -157,6 +170,7 @@
 
   <!-- 02 POR MUNICIPIO -->
   <section id="por-municipio">
+    <span class="eyebrow">Detalle por municipio</span>
     <div class="titulo"><span class="rotulo">02</span><h2>Por municipio</h2></div>
     <p class="nota">Los diez candidatos de Cámara más votados y el partido que lidera el Senado en el mismo territorio.</p>
     <div class="barra-filtro">
@@ -172,6 +186,7 @@
 
   <!-- 03 ARRASTRE -->
   <section id="arrastre">
+    <span class="eyebrow">Arrastre electoral</span>
     <div class="titulo"><span class="rotulo">03</span><h2>Arrastre Verde por puesto</h2></div>
     <p class="nota">Ratio votos Senado ÷ votos Cámara de Alianza Verde (codpar 5 → 57) en cada puesto.
       La línea de referencia en 1.0 marca la transferencia neutra: por encima, el Senado tracciona;
