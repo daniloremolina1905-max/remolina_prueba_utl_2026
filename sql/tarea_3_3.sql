@@ -1,19 +1,7 @@
 -- Tarea 3.3 — Atribución determinística, Top 5 candidatos por atribución SE consolidada
---
--- Formula:  A_ij = (votos_cand_i / votos_partido_j_CA) * votos_SE_partido_homologado_j
---
--- Es decir: a cada candidato de Cámara se le atribuye una porción de los
--- votos de Senado de SU partido, proporcional a lo que ese candidato pesó
--- dentro del total de su partido en Cámara. Los totales son "consolidados":
--- sumados sobre los 4 municipios de la prueba.
---
--- Homologación de partido CA -> SE: el enunciado solo fija explícitamente
--- Alianza Verde (5 -> 57) y Pacto Histórico (87 -> 92). Para el resto de
--- partidos se asume homologación por identidad de código (codpar_SE =
--- codpar_CA) cuando no hay una tabla de equivalencias más específica; esto
--- incluye a Centro Democrático (10) y Conservador (2), que en este ciclo usan
--- el mismo codpar en ambas elecciones. Este supuesto se documenta en el
--- README (sección "Hallazgos principales").
+-- A_ij = (votos_cand_i / votos_partido_j_CA) * votos_SE_partido_homologado_j
+-- Homologación fijada por el enunciado: 5->57, 87->92. Resto: codpar_SE = codpar_CA
+-- (ver README, "Hallazgos principales").
 
 WITH homologacion AS (
     SELECT 5  AS codpar_ca, 57 AS codpar_se UNION ALL

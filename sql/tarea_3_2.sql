@@ -1,14 +1,7 @@
 -- Tarea 3.2 — Dominancia extrema
---
--- Mesas donde un candidato concentra más del 60% de los votos de SU PROPIO
--- partido en esa misma mesa (mismo mesa_id + eleccion + codpar).
--- Se excluye el pseudo-candidato "VOTO SOLO POR LISTA" porque no es una
--- persona candidata, es el remanente de votos marcados solo por el partido.
---
--- Se exige además total_partido_mesa >= 5: con menos de 5 votos totales del
--- partido en la mesa, superar 60% es casi automático (p.ej. 1 de 1 voto) y
--- no aporta señal real de dominancia; este umbral es un criterio analítico
--- para evitar ruido estadístico en mesas con muestras minúsculas.
+-- Mesas donde un candidato concentra >60% de los votos de su partido.
+-- Excluye "Voto Solo Por Lista". Umbral total_partido_mesa >= 5 para
+-- descartar muestras minúsculas sin señal real.
 
 WITH votos_partido_mesa AS (
     SELECT mesa_id, eleccion, codpar, SUM(votos) AS total_partido_mesa

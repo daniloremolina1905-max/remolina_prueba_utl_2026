@@ -1,9 +1,6 @@
 """
-Genera dashboard/data.json a partir de db/puestos_2026.db y además incrusta
-ese mismo JSON dentro de dashboard/index.html (entre los marcadores
-DATA_START / DATA_END), para que el dashboard funcione abriendo el archivo
-directamente en el navegador sin servidor (fetch() de un archivo local vía
-file:// falla por CORS en Chrome, por eso los datos van embebidos inline).
+Genera dashboard/data.json y embebe el mismo JSON en dashboard/index.html
+(marcadores DATA_START/DATA_END) — fetch() vía file:// falla por CORS.
 
 Uso:
     python dashboard/export_data.py

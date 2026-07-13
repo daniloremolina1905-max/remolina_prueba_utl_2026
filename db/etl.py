@@ -1,12 +1,8 @@
 """
-ETL — carga normalizada de resultados electorales en puestos_2026.db
+ETL — carga normalizada de resultados electorales en puestos_2026.db.
 
-Expone funciones reutilizadas por scraper/scraper.py para insertar datos de
-forma idempotente (INSERT OR IGNORE + UNIQUE constraints) y registrar cuántas
-filas se insertaron vs. se omitieron por cada corrida (tabla carga_log).
-
-Ejecutado directamente (`python db/etl.py`) solo inicializa el schema vacío;
-la carga real de datos la orquesta scraper.py.
+Funciones de inserción idempotente (INSERT OR IGNORE + UNIQUE) reutilizadas
+por scraper/scraper.py. Ejecutado directo, solo inicializa el schema.
 """
 
 from __future__ import annotations

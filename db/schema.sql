@@ -1,13 +1,8 @@
 -- Schema BD Electoral Boyacá 2026
 -- UTL Senado de la República · Prueba Técnica Analista de Datos
 --
--- Granularidad real disponible en la API de la Registraduría: hasta PUESTO de
--- votación (no publica resultados por MESA individual en el preconteo). Las
--- filas de `mesas` y los votos asociados a ellas se generan por el ETL
--- repartiendo de forma determinística (seed fija) los totales reales de cada
--- puesto entre sus mesas, para poder resolver los ejercicios que piden
--- granularidad de mesa (Reto 3.2 y Reto 5.2). Esto se documenta también en el
--- README, sección "API".
+-- Nota: la API expone resultados hasta nivel PUESTO; las mesas se generan por
+-- reparto determinístico en el ETL (detalle en README, sección "API").
 
 PRAGMA foreign_keys = ON;
 
@@ -67,23 +62,15 @@ CREATE TABLE IF NOT EXISTS carga_log (
     fecha_carga        TEXT NOT NULL    -- ISO 8601
 );
 
--- ---------------------------------------------------------------------------
--- Índices (bonus Reto 2.1, +2 pts) — justificación de qué consulta optimiza
--- ---------------------------------------------------------------------------
-
--- idx_votos_mesa: acelera el JOIN mesas->votos usado en TODAS las consultas de
--- sql/tarea_3_*.sql y en viz/scatter.py, que agregan votos agrupando por mesa.
+-- Índices (Reto 2.1, +2 pts)
 CREATE INDEX IF NOT EXISTS idx_votos_mesa ON votos(mesa_id);
+-- join mesas->votos en sql/tarea_3_*.sql y viz/scatter.py
 
--- idx_votos_codpar_eleccion: acelera el filtro "WHERE eleccion=? AND codpar=?"
--- que usa tarea_3_1.sql (arrastre Verde CA->SE) y tarea_3_3.sql (totales por
--- partido), evitando un table scan completo de la tabla `votos`.
 CREATE INDEX IF NOT EXISTS idx_votos_codpar_eleccion ON votos(codpar, eleccion);
+-- filtro eleccion+codpar en tarea_3_1.sql y tarea_3_3.sql
 
--- idx_mesas_puesto: acelera agrupar/enlazar mesas por puesto, usado en
--- tarea_3_1.sql y tarea_3_2.sql y en dashboard/export_data.py (pestaña Arrastre).
 CREATE INDEX IF NOT EXISTS idx_mesas_puesto ON mesas(puesto_id);
+-- agrupar mesas por puesto en tarea_3_1.sql, tarea_3_2.sql, export_data.py
 
--- idx_puestos_municipio: acelera "top 10 candidatos por municipio" del
--- dashboard y el filtro por municipio de viz/heatmap.py.
 CREATE INDEX IF NOT EXISTS idx_puestos_municipio ON puestos(municipio_id);
+-- top10 por municipio en dashboard/export_data.py y viz/heatmap.py

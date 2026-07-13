@@ -1,20 +1,18 @@
 """
 Scraper de resultados electorales — Congreso 2026, 4 municipios de Boyacá.
 
-Fuente: API REST pública de la Registraduría Nacional
+Fuente: API REST de la Registraduría Nacional
         https://resultadospreccongreso2026.registraduria.gov.co
-(ver documentación completa del mapeo de la API en README.md, sección "API").
+(mapeo completo en README.md, sección "API").
 
 Uso:
-    python scraper.py                              # TUNJA PAIPA SOGAMOSO DUITAMA, CA+SE
-    python scraper.py --municipios TUNJA PAIPA      # solo esos municipios
-    python scraper.py --preflight                   # cuenta puestos/mesas sin descargar (+3 bonus)
+    python scraper.py
+    python scraper.py --municipios TUNJA PAIPA
+    python scraper.py --preflight
     python scraper.py --municipios SOGAMOSO --delay 0.5 --max-retries 6
 
-Idempotencia: cada fila de `votos` tiene una UNIQUE(mesa_id, eleccion, codpar,
-candidato_id) y se inserta con INSERT OR IGNORE (ver db/etl.py), así que
-volver a correr el scraper NO duplica registros — las filas repetidas se
-cuentan como "omitidas" en carga_log.
+Idempotente vía UNIQUE(mesa_id, eleccion, codpar, candidato_id) + INSERT OR
+IGNORE en db/etl.py.
 """
 
 from __future__ import annotations
@@ -39,9 +37,7 @@ NOMENCLATOR_URL = f"{BASE_URL}/json/nomenclator.json"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SAMPLE_DATA_DIR = REPO_ROOT / "sample_data"  # fixtures pequeños provistos (solo lectura)
 
-# Caché interno del scraper (respuestas completas de la API, se regenera solo).
-# Vive FUERA de sample_data/ para no mezclarlo con los fixtures de solo lectura
-# ni inflar el repo; está en .gitignore.
+# Caché interno del scraper, fuera de sample_data/ (fixtures de solo lectura). En .gitignore.
 CACHE_DIR = REPO_ROOT / ".scraper_cache" / "cache"
 NOMENCLATOR_CACHE = REPO_ROOT / ".scraper_cache" / "nomenclator_cache.json"
 
@@ -49,8 +45,7 @@ MUNICIPIOS_DEFAULT = ["TUNJA", "PAIPA", "SOGAMOSO", "DUITAMA"]
 ELECCIONES = ["SE", "CA"]
 DEPARTAMENTO_BOYACA = "0700"
 
-# Colores oficiales exigidos por el enunciado (Reto 4) — se fuerzan sobre lo
-# que reporte la API para estos 4 partidos; el resto usa el color del catálogo.
+# Colores oficiales (Reto 4), se fuerzan sobre el color reportado por la API.
 COLORES_OFICIALES = {
     5: "#007C34",   # Alianza Verde (CA)
     57: "#007C34",  # Alianza Verde (SE)
@@ -80,8 +75,7 @@ def _cache_path_for(url: str) -> Path:
 
 
 def fetch_json(url: str, session: requests.Session, max_retries: int = 4, timeout: int = 10):
-    """GET con retry/backoff exponencial. Si todos los intentos fallan, intenta
-    servir una copia guardada en .scraper_cache/ (fallback offline)."""
+    """GET con retry/backoff exponencial; fallback a .scraper_cache/ si todo falla."""
     backoff = 1.0
     last_error = None
     for attempt in range(1, max_retries + 1):
@@ -174,18 +168,11 @@ def puestos_de_municipio(nomenclator: dict, municipio_amb: dict) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Disgregación sintética puesto -> mesas
-#
-# La API pública del preconteo NO expone resultados por mesa individual
-# (formulario E-14), solo hasta nivel de PUESTO. Para poder resolver los
-# ejercicios que requieren granularidad de mesa (Reto 3.2 y Reto 5.2), el
-# total real de votos de cada candidato en un puesto se reparte entre sus
-# mesas de forma DETERMINÍSTICA (semilla fija = código de puesto + candidato)
-# para que el resultado sea reproducible y la suma por mesas siempre cuadre
-# exactamente con el total real del puesto.
+# Disgregación puesto -> mesas (la API no expone resultados por mesa)
 # ---------------------------------------------------------------------------
 
 def repartir_votos_en_mesas(total_votos: int, num_mesas: int, seed_str: str) -> list[int]:
+    """Reparto determinístico (seed=puesto+candidato); la suma cuadra con el total real."""
     if num_mesas <= 0:
         return []
     if total_votos == 0:

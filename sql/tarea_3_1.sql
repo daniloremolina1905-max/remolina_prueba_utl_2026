@@ -1,12 +1,6 @@
 -- Tarea 3.1 — Arrastre Alianza Verde CA -> SE, por puesto y municipio
---
--- Ratio = votos_SE_Verde / votos_CA_Verde
--- Homologación de partido exigida por el enunciado: codpar_CA=5 -> codpar_SE=57
--- (ambos son "Alianza Verde" pero la Registraduría les asigna un codpar
--- distinto por cada tipo de elección).
---
--- Un ratio > 1 indica que el partido "arrastró" más votos a Senado que los
--- que obtuvo en Cámara en ese mismo puesto; < 1 indica lo contrario.
+-- ratio_arrastre = votos_SE_Verde / votos_CA_Verde
+-- Homologación: codpar_CA=5 -> codpar_SE=57
 
 SELECT
     m.nombre                                                            AS municipio,
