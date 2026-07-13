@@ -1,14 +1,5 @@
 """
 Reto 5.1 - Heatmap de participación por candidato y municipio.
-
-Genera viz/heatmap_municipios.png:
-    filas    = top 8 candidatos de Cámara (por votos totales en los 4 municipios)
-    columnas = los 4 municipios
-    valores  = % que representa ese candidato sobre el total de votos válidos
-               de Cámara EN ESE municipio (no sobre el total nacional/consolidado)
-
-Uso:
-    python viz/heatmap.py
 """
 
 from __future__ import annotations

@@ -1,9 +1,5 @@
 """
-Genera dashboard/data.json y embebe el mismo JSON en dashboard/index.html
-(marcadores DATA_START/DATA_END). fetch() vía file:// falla por CORS.
-
-Uso:
-    python dashboard/export_data.py
+dashboard/data.json
 """
 
 from __future__ import annotations

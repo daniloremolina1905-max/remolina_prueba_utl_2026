@@ -1,15 +1,3 @@
-"""
-Genera outputs/evaluation_manifest.json. Valida automáticamente:
-  - Reto 1/2: que la BD tenga filas de los 4 municipios ("4/4 municipios")
-  - Reto 3: que las 3 queries de sql/ corran sin error ("SQL OK")
-  - Reto 5: valores impresos por viz/scatter.py (r, pendiente, n_mesas)
-  - Bonus detectados automáticamente en el repo
-
-*** EDITE LA SECCIÓN META ANTES DE ENTREGAR ***
-
-Uso:
-    python outputs/generar_manifest.py
-"""
 
 from __future__ import annotations
 

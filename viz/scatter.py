@@ -1,10 +1,6 @@
 """
 Reto 5.2 - Scatter Cámara vs. Senado por mesa.
 
-Genera viz/scatter_ca_se.png:
-    cada punto = una mesa (votos válidos totales de Cámara vs. de Senado)
-    color por municipio, línea de regresión OLS, r de Pearson anotado
-
 Imprime en stdout la línea exigida por el manifest:
     r=X.XXX | pendiente=X.XXX | n_mesas=NNN
 
